@@ -1,0 +1,63 @@
+# Legge i feed e pubblica il sito su GitHub Pages.
+# Gira ogni 30 minuti (lontano dallo scoccare dell'ora, quando la coda di GitHub
+# è più carica), a ogni modifica di main e a richiesta dalla scheda Actions.
+name: Aggiorna e pubblica
+
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Una pubblicazione per volta: quella in corso finisce, la successiva aspetta.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  pubblica:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - run: npm ci
+
+      - name: Prove automatiche
+        if: github.event_name != 'schedule'
+        run: npm test
+
+      # Ultimo risultato valido di ogni fonte e registro degli errori,
+      # conservati da un'esecuzione alla successiva.
+      - uses: actions/cache@v6
+        with:
+          path: dati
+          key: dati-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: dati-
+
+      # Se nessuna fonte risponde il comando fallisce e il sito pubblicato
+      # resta quello dell'ultimo aggiornamento riuscito.
+      - name: Lettura dei feed
+        run: npm run feed -- --elenco
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: sito
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -8,7 +8,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "feed": "node src/leggi-feed.js",
+    "feed": "node src/leggi-feed.js --feed sito/dati/feed.json",
+    "sito": "node src/servi.js",
     "test": "node --test"
   },
   "dependencies": {

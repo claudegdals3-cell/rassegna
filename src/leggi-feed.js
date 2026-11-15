@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 // Legge le fonti verificate di fonti.json e produce il file unico dati/feed.json.
 //
-// Uso: node src/leggi-feed.js [--fonti fonti.json] [--uscita dati]
+// Uso: node src/leggi-feed.js [--fonti fonti.json] [--uscita dati] [--feed percorso/feed.json]
 //
 // File prodotti nella cartella di uscita:
 //   feed.json    voci pubblicate ed esito di ogni fonte nell'ultimo ciclo
+//                (con --feed si sceglie un altro percorso, per esempio dentro il sito)
 //   cache.json   ultimo risultato valido di ogni fonte (solo titoli ed estratti)
 //   errori.log   una riga per ogni lettura non riuscita
 
 import { appendFile, mkdir, readFile, rename, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { parseArgs } from 'node:util';
 import { analizzaFeed, testataDi } from './analizza.js';
 import { componi, entroEta } from './componi.js';
@@ -105,15 +106,17 @@ async function principale() {
     options: {
       fonti: { type: 'string', default: 'fonti.json' },
       uscita: { type: 'string', default: 'dati' },
+      feed: { type: 'string' },
     },
   });
   const adesso = new Date();
-  const fileFeed = join(opzioni.uscita, 'feed.json');
+  const fileFeed = opzioni.feed ?? join(opzioni.uscita, 'feed.json');
   const fileCache = join(opzioni.uscita, 'cache.json');
   const fileErrori = join(opzioni.uscita, 'errori.log');
 
   const fonti = (await leggiJson(opzioni.fonti)).fonti.filter((f) => f.stato === 'verificato' && f.url);
   await mkdir(opzioni.uscita, { recursive: true });
+  await mkdir(dirname(fileFeed), { recursive: true });
   const cacheSuDisco = await leggiJson(fileCache, {});
   const cache = cacheSuDisco.versione === VERSIONE_CACHE ? cacheSuDisco.fonti : {};
 
@@ -163,6 +166,9 @@ async function principale() {
 
   const registro = fonti.map((fonte, i) => ({
     nome: fonte.nome,
+    testata: testataDi(fonte),
+    sezione: fonte.sezione,
+    livello: fonte.livello,
     url: fonte.url,
     esito: esiti[i].esito,
     voci_entro_eta: nuovaCache[fonte.url].voci.length,

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F7F2E9">
+<meta name="referrer" content="no-referrer">
+<title>Rassegna</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Newsreader:wght@500;600&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="stile.css">
+</head>
+<body>
+<div class="app">
+  <header class="testa">
+    <h1>Rassegna</h1>
+    <p id="stato" aria-live="polite"></p>
+  </header>
+
+  <nav id="schede" class="schede" aria-label="Sezioni del feed" hidden></nav>
+
+  <main id="contenuto" tabindex="-1"></main>
+
+  <nav class="barra" aria-label="Navigazione principale">
+    <button type="button" data-vista="notizie" aria-pressed="true">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"></path></svg>
+      <span>Notizie</span>
+    </button>
+    <button type="button" data-vista="letture" aria-pressed="false">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4V5zM20 5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6V5z"></path></svg>
+      <span>Letture</span>
+    </button>
+    <button type="button" data-vista="salvati" aria-pressed="false">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M6 4h12v17l-6-4-6 4V4z"></path></svg>
+      <span>Salvati</span>
+    </button>
+    <button type="button" data-vista="sezioni" aria-pressed="false">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h9M19 7h1M4 17h1M11 17h9"></path><circle cx="16" cy="7" r="2.5"></circle><circle cx="8" cy="17" r="2.5"></circle></svg>
+      <span>Sezioni</span>
+    </button>
+  </nav>
+</div>
+<noscript><p style="padding: 24px">Rassegna ha bisogno di JavaScript per mostrare le notizie.</p></noscript>
+<script type="module" src="app.js"></script>
+</body>
+</html>

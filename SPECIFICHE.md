@@ -79,12 +79,13 @@ Da confermare con l'utente prima di scrivere codice, con costi e alternative:
 
 ## 7. Regole di lettura dei feed
 
-- Fonti in `fonti.json`. Leggere solo quelle con `stato` uguale a `verificato`, più quelle `da_provare` che superano la verifica della tappa 1.
+- Fonti in `fonti.json`. Leggere solo quelle con `stato` uguale a `verificato`. Le fonti `da_provare` vanno riprovate dall'hosting; quelle con stato `escluso` non si leggono.
 - Formati: RSS 2.0 e Atom. Alcuni feed non hanno descrizione o immagine: la voce si mostra comunque.
 - Estratto: testo semplice, senza HTML, al massimo 200 caratteri, anche quando il feed contiene il testo completo. Il testo completo non va né mostrato né conservato.
 - Immagine: da `enclosure`, `media:content` o dal primo `img` della descrizione, se presente.
 - Doppioni: eliminare le voci con lo stesso indirizzo (il feed generale di AboutPharma ripete le voci delle sue sezioni; alcuni feed ripetono la stessa voce).
-- Età massima: 48 ore per Notizie, 30 giorni per Letture.
+- Età massima: 72 ore per Notizie (così il venerdì resta visibile fino al lunedì mattina), 30 giorni per Letture.
+- Tetto per fonte: di ogni fonte entrano al massimo le 20 Letture più recenti.
 - Tempo di lettura delle Letture: stimato dal numero di parole quando il feed dà il testo completo, altrimenti omesso.
 - Un feed che non risponde non deve bloccare gli altri: tempo massimo di attesa per feed, registro degli errori, ultimo risultato valido conservato.
 - Rispettare i siti: una sola richiesta per feed a ogni ciclo, intestazione di identificazione chiara, nessun aggiramento di blocchi o di accessi a pagamento.

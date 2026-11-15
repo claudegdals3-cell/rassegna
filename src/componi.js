@@ -1,11 +1,14 @@
 // Regole di composizione dell'elenco unico (punto 7 delle specifiche):
-// età massima per livello, eliminazione dei doppioni, ordine cronologico inverso.
+// età massima per livello, tetto di letture per fonte, eliminazione dei doppioni,
+// ordine cronologico inverso.
 
 const ORA = 60 * 60 * 1000;
 export const ETA_MASSIMA = {
-  notizie: 48 * ORA,
+  notizie: 72 * ORA,
   letture: 30 * 24 * ORA,
 };
+// Di ogni fonte entrano solo le letture più recenti, per non sbilanciare l'elenco.
+export const LETTURE_PER_FONTE = 20;
 // Tolleranza per gli orologi non allineati delle testate.
 const ANTICIPO_TOLLERATO = 24 * ORA;
 
@@ -32,13 +35,19 @@ export function componi(gruppi, adesso = Date.now()) {
   const perIndirizzo = new Map();
   let doppioni = 0;
   let fuoriEta = 0;
+  let oltreTetto = 0;
 
   for (const { ordine, voci } of gruppi) {
-    for (const voce of voci) {
-      if (!entroEta(voce, adesso)) {
-        fuoriEta += 1;
-        continue;
-      }
+    const recenti = voci.filter((voce) => entroEta(voce, adesso));
+    fuoriEta += voci.length - recenti.length;
+    const letture = recenti
+      .filter((voce) => voce.livello === 'letture')
+      .sort((a, b) => Date.parse(b.pubblicato) - Date.parse(a.pubblicato));
+    const escluse = new Set(letture.slice(LETTURE_PER_FONTE));
+    oltreTetto += escluse.size;
+
+    for (const voce of recenti) {
+      if (escluse.has(voce)) continue;
       const nuova = { ...voce, ordine };
       const presente = perIndirizzo.get(voce.id);
       if (!presente) {
@@ -60,5 +69,5 @@ export function componi(gruppi, adesso = Date.now()) {
     .sort((a, b) => Date.parse(b.pubblicato) - Date.parse(a.pubblicato) || a.ordine - b.ordine)
     .map(({ ordine, ...voce }) => voce);
 
-  return { voci, doppioni, fuoriEta };
+  return { voci, doppioni, fuoriEta, oltreTetto };
 }

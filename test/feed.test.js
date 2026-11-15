@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { analizzaFeed, estrattoDa, normalizzaUrl, ESTRATTO_MAX } from '../src/analizza.js';
-import { componi } from '../src/componi.js';
+import { componi, LETTURE_PER_FONTE } from '../src/componi.js';
 
 const notizie = { nome: 'Testata di prova, Economia', url: 'https://esempio.test/feed/', sezione: 'mercati', livello: 'notizie', lingua: 'it' };
 const letture = { nome: 'Rivista di prova', url: 'https://rivista.test/feed/', sezione: 'geopolitica', livello: 'letture', tipo: 'analisi', lingua: 'it' };
@@ -99,7 +99,8 @@ test('componi: età massima per livello, doppioni e ordine', () => {
   const gruppi = [
     { ordine: 0, voci: [
       voce('a', '2026-11-15T12:00:00Z', { sezione: 'attualita', immagine: 'https://a.test/a.jpg' }),
-      voce('vecchia', '2026-11-13T17:00:00Z'),
+      voce('vecchia', '2026-11-12T17:00:00Z'),
+      voce('venerdi', '2026-11-13T09:00:00Z'),
       voce('senza-data', null),
     ] },
     { ordine: 1, voci: [
@@ -110,11 +111,25 @@ test('componi: età massima per livello, doppioni e ordine', () => {
     ] },
   ];
   const { voci, doppioni, fuoriEta } = componi(gruppi, adesso);
-  assert.deepEqual(voci.map((v) => v.id), ['b', 'a', 'lettura']);
+  assert.deepEqual(voci.map((v) => v.id), ['b', 'a', 'venerdi', 'lettura'], 'il venerdì resta visibile la domenica');
   assert.equal(doppioni, 1);
   assert.equal(fuoriEta, 3);
   const a = voci[1];
   assert.equal(a.sezione, 'politica', 'vince la fonte di sezione su quella generale');
   assert.equal(a.immagine, 'https://a.test/a.jpg', 'i campi mancanti si completano');
   assert.ok(!('ordine' in a));
+});
+
+test('componi: di ogni fonte entrano solo le letture più recenti', () => {
+  const adesso = Date.parse('2026-11-15T18:00:00Z');
+  const voci = Array.from({ length: LETTURE_PER_FONTE + 5 }, (_, i) => ({
+    id: `l${i}`, titolo: `l${i}`, estratto: '', url: `https://a.test/l${i}`, testata: 'T', sezione: 'geopolitica',
+    livello: 'letture', tipo: 'analisi', lingua: 'it', immagine: null, minuti_lettura: null,
+    pubblicato: new Date(adesso - (i + 1) * 3600_000).toISOString(),
+  }));
+  const esito = componi([{ ordine: 0, voci: [...voci].reverse() }], adesso);
+  assert.equal(esito.voci.length, LETTURE_PER_FONTE);
+  assert.equal(esito.oltreTetto, 5);
+  assert.equal(esito.voci[0].id, 'l0');
+  assert.ok(!esito.voci.some((v) => v.id === `l${LETTURE_PER_FONTE}`), 'restano fuori le più vecchie');
 });

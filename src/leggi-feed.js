@@ -159,7 +159,7 @@ async function principale() {
     return { ordine, voci };
   });
 
-  const { voci, doppioni, fuoriEta } = componi(gruppi, adesso.getTime());
+  const { voci, doppioni, fuoriEta, oltreTetto } = componi(gruppi, adesso.getTime());
 
   const registro = fonti.map((fonte, i) => ({
     nome: fonte.nome,
@@ -194,6 +194,7 @@ async function principale() {
       notizie: voci.filter((v) => v.livello === 'notizie').length,
       letture: voci.filter((v) => v.livello === 'letture').length,
       doppioni_eliminati: doppioni,
+      letture_oltre_il_tetto: oltreTetto,
     },
     voci,
     fonti: registro,

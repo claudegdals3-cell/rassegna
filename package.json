@@ -1,0 +1,18 @@
+{
+  "name": "rassegna",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Aggregatore personale di notizie e letture da feed RSS e Atom",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "feed": "node src/leggi-feed.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "entities": "^9.0.0",
+    "fast-xml-parser": "^5.12.1"
+  }
+}

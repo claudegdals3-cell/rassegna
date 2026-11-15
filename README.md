@@ -31,3 +31,14 @@ npm run sito
 ```
 
 L'app si apre all'indirizzo `http://127.0.0.1:4173/`.
+
+## Pubblicazione (tappa 4)
+
+Il workflow `.github/workflows/aggiorna.yml` legge i feed e pubblica la cartella `sito/` su GitHub Pages ogni 30 minuti, a ogni modifica di `main` e a richiesta dalla scheda Actions. Richiede:
+
+- repository pubblico (con il piano gratuito Pages è disponibile solo così);
+- Settings, Pages, Source: GitHub Actions.
+
+Il workflow `prova-fonti.yml`, da avviare a mano, prova dall'ambiente di GitHub le fonti ancora `da_provare` e ne stampa l'esito.
+
+L'app è installabile sulla schermata home (manifest e service worker in `sito/`) e si apre anche senza rete con gli ultimi dati scaricati.

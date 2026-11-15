@@ -378,3 +378,8 @@ setInterval(disegnaStato, 60_000);
 
 disegna();
 aggiorna();
+
+// Rende l'app installabile e apribile anche senza rete (i dati restano gli ultimi scaricati).
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}

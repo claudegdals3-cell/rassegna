@@ -1,0 +1,22 @@
+# Prova, a richiesta, le fonti ancora "da_provare" di fonti.json dall'ambiente
+# di GitHub. Non pubblica nulla: l'esito si legge nel registro dell'esecuzione.
+name: Prova le fonti da provare
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prova:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Lettura delle fonti da provare
+        run: node src/leggi-feed.js --stato da_provare --uscita "$RUNNER_TEMP/prova" --elenco || true

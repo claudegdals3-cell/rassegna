@@ -2,6 +2,10 @@
 // Legge le fonti verificate di fonti.json e produce il file unico dati/feed.json.
 //
 // Uso: node src/leggi-feed.js [--fonti fonti.json] [--uscita dati] [--feed percorso/feed.json]
+//                              [--stato verificato] [--elenco]
+//
+// Con --stato da_provare si provano le fonti non ancora verificate, usando
+// url_candidato; con --elenco si stampa l'esito di ogni fonte.
 //
 // File prodotti nella cartella di uscita:
 //   feed.json    voci pubblicate ed esito di ogni fonte nell'ultimo ciclo
@@ -107,6 +111,8 @@ async function principale() {
       fonti: { type: 'string', default: 'fonti.json' },
       uscita: { type: 'string', default: 'dati' },
       feed: { type: 'string' },
+      stato: { type: 'string', default: 'verificato' },
+      elenco: { type: 'boolean', default: false },
     },
   });
   const adesso = new Date();
@@ -114,7 +120,14 @@ async function principale() {
   const fileCache = join(opzioni.uscita, 'cache.json');
   const fileErrori = join(opzioni.uscita, 'errori.log');
 
-  const fonti = (await leggiJson(opzioni.fonti)).fonti.filter((f) => f.stato === 'verificato' && f.url);
+  const fonti = (await leggiJson(opzioni.fonti)).fonti
+    .filter((f) => f.stato === opzioni.stato)
+    .map((f) => ({ ...f, url: f.url ?? f.url_candidato }))
+    .filter((f) => f.url);
+  if (!fonti.length) {
+    console.log(`Nessuna fonte con stato ${opzioni.stato} e un indirizzo da leggere.`);
+    return;
+  }
   await mkdir(opzioni.uscita, { recursive: true });
   await mkdir(dirname(fileFeed), { recursive: true });
   const cacheSuDisco = await leggiJson(fileCache, {});
@@ -176,6 +189,11 @@ async function principale() {
     ...(esiti[i].errore ? { errore: esiti[i].errore } : {}),
   }));
   const errori = registro.filter((r) => r.esito === 'errore');
+  if (opzioni.elenco) {
+    for (const r of registro) {
+      console.log(`${r.esito === 'errore' ? 'ERRORE' : 'ok    '}  ${r.nome}  (${r.url})  ${r.errore ?? `${r.voci_entro_eta} voci recenti`}`);
+    }
+  }
 
   if (errori.length) {
     const righe = errori.map((r) => `${adesso.toISOString()}\t${r.nome}\t${r.url}\t${r.errore}\n`).join('');

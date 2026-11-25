@@ -1,13 +1,10 @@
 # Legge i feed e pubblica il sito su GitHub Pages.
-# Gira ogni 30 minuti (lontano dallo scoccare dell'ora, quando la coda di GitHub
-# è più carica), a ogni modifica di main e a richiesta dalla scheda Actions.
+# Aggiornamento automatico sospeso su richiesta dell'utente (25/11/2026):
+# il workflow parte solo a mano dalla scheda Actions. Per riattivarlo
+# ripristinare i blocchi schedule (cron '7,37 * * * *') e push su main.
 name: Aggiorna e pubblica
 
 on:
-  schedule:
-    - cron: '7,37 * * * *'
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
